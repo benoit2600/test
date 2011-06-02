@@ -77,6 +77,10 @@ static void
 deadline_add_rq_rb(struct deadline_data *dd, struct request *rq)
 {
 	struct rb_root *root = deadline_rb_root(dd, rq);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 796d511... iosched: prevent aliased requests from starving other I/O
 	elv_rb_add(root, rq);
 }
 
