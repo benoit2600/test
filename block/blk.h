@@ -13,11 +13,6 @@ extern struct kmem_cache *blk_requestq_cachep;
 extern struct kobj_type blk_queue_ktype;
 extern struct ida blk_queue_ida;
 
-static inline void __blk_get_queue(struct request_queue *q)
-{
-	kobject_get(&q->kobj);
-}
-
 void init_request_from_bio(struct request *req, struct bio *bio);
 void blk_rq_bio_prep(struct request_queue *q, struct request *rq,
 			struct bio *bio);
@@ -39,7 +34,6 @@ void __generic_unplug_device(struct request_queue *);
  */
 enum rq_atomic_flags {
 	REQ_ATOM_COMPLETE = 0,
-	REQ_ATOM_URGENT = 1,
 };
 
 /*
@@ -54,16 +48,6 @@ static inline int blk_mark_rq_complete(struct request *rq)
 static inline void blk_clear_rq_complete(struct request *rq)
 {
 	clear_bit(REQ_ATOM_COMPLETE, &rq->atomic_flags);
-}
-
-static inline int blk_mark_rq_urgent(struct request *rq)
-{
-	return test_and_set_bit(REQ_ATOM_URGENT, &rq->atomic_flags);
-}
-
-static inline void blk_clear_rq_urgent(struct request *rq)
-{
-	clear_bit(REQ_ATOM_URGENT, &rq->atomic_flags);
 }
 
 /*
@@ -105,7 +89,7 @@ static inline struct request *__elv_next_request(struct request_queue *q)
 			return NULL;
 		}
 		if (unlikely(blk_queue_dead(q)) ||
-		    !q->elevator->type->ops.elevator_dispatch_fn(q, 0))
+		    !q->elevator->ops->elevator_dispatch_fn(q, 0))
 			return NULL;
 	}
 }
@@ -114,16 +98,16 @@ static inline void elv_activate_rq(struct request_queue *q, struct request *rq)
 {
 	struct elevator_queue *e = q->elevator;
 
-	if (e->type->ops.elevator_activate_req_fn)
-		e->type->ops.elevator_activate_req_fn(q, rq);
+	if (e->ops->elevator_activate_req_fn)
+		e->ops->elevator_activate_req_fn(q, rq);
 }
 
 static inline void elv_deactivate_rq(struct request_queue *q, struct request *rq)
 {
 	struct elevator_queue *e = q->elevator;
 
-	if (e->type->ops.elevator_deactivate_req_fn)
-		e->type->ops.elevator_deactivate_req_fn(q, rq);
+	if (e->ops->elevator_deactivate_req_fn)
+		e->ops->elevator_deactivate_req_fn(q, rq);
 }
 
 #ifdef CONFIG_FAIL_IO_TIMEOUT
@@ -138,6 +122,9 @@ static inline int blk_should_fake_timeout(struct request_queue *q)
 }
 #endif
 
+void get_io_context(struct io_context *ioc);
+struct io_context *current_io_context(gfp_t gfp_flags, int node);
+
 int ll_back_merge_fn(struct request_queue *q, struct request *req,
 		     struct bio *bio);
 int ll_front_merge_fn(struct request_queue *q, struct request *req, 
@@ -148,8 +135,6 @@ int blk_attempt_req_merge(struct request_queue *q, struct request *rq,
 				struct request *next);
 void blk_recalc_rq_segments(struct request *rq);
 void blk_rq_set_mixed_merge(struct request *rq);
-bool blk_rq_merge_ok(struct request *rq, struct bio *bio);
-int blk_try_merge(struct request *rq, struct bio *bio);
 
 void blk_queue_congestion_threshold(struct request_queue *q);
 
@@ -208,41 +193,6 @@ static inline int blk_do_io_stat(struct request *rq)
 	        (rq->cmd_flags & REQ_DISCARD));
 }
 
-/*
- * Internal io_context interface
- */
-void get_io_context(struct io_context *ioc);
-struct io_cq *ioc_lookup_icq(struct io_context *ioc, struct request_queue *q);
-void ioc_clear_queue(struct request_queue *q);
-
-void create_io_context_slowpath(struct task_struct *task, gfp_t gfp_mask,
-				int node);
-
-/**
- * create_io_context - try to create task->io_context
- * @task: target task
- * @gfp_mask: allocation mask
- * @node: allocation node
- *
- * If @task->io_context is %NULL, allocate a new io_context and install it.
- * Returns the current @task->io_context which may be %NULL if allocation
- * failed.
- *
- * Note that this function can't be called with IRQ disabled because
- * task_lock which protects @task->io_context is IRQ-unsafe.
- */
-static inline struct io_context *create_io_context(struct task_struct *task,
-						   gfp_t gfp_mask, int node)
-{
-	WARN_ON_ONCE(irqs_disabled());
-	if (unlikely(!task->io_context))
-		create_io_context_slowpath(task, gfp_mask, node);
-	return task->io_context;
-}
-
-/*
- * Internal throttling interface
- */
 #ifdef CONFIG_BLK_DEV_THROTTLING
 extern bool blk_throtl_bio(struct request_queue *q, struct bio *bio);
 extern void blk_throtl_drain(struct request_queue *q);
