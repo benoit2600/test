@@ -2644,24 +2644,6 @@ static void cfq_put_queue(struct cfq_queue *cfqq)
 	cfq_put_cfqg(cfqg);
 }
 
-/*
- * Call func for each cic attached to this ioc.
- */
-static void
-call_for_each_cic(struct io_context *ioc,
-		  void (*func)(struct io_context *, struct cfq_io_context *))
-{
-	struct cfq_io_context *cic;
-	struct hlist_node *n;
-
-	rcu_read_lock();
-
-	hlist_for_each_entry_rcu(cic, n, &ioc->cic_list, cic_list)
-		func(ioc, cic);
-
-	rcu_read_unlock();
-}
-
 static void cfq_cic_free_rcu(struct rcu_head *head)
 {
 	struct cfq_io_context *cic;
@@ -2697,6 +2679,7 @@ static void cic_free_func(struct io_context *ioc, struct cfq_io_context *cic)
 	unsigned long dead_key = (unsigned long) cic->key;
 
 	BUG_ON(!(dead_key & CIC_DEAD_KEY));
+<<<<<<< HEAD
 
 	spin_lock_irqsave(&ioc->lock, flags);
 	radix_tree_delete(&ioc->radix_root, dead_key >> CIC_DEAD_INDEX_SHIFT);
@@ -2722,6 +2705,13 @@ static void cfq_free_io_context(struct io_context *ioc)
 	call_for_each_cic(ioc, cic_free_func);
 }
 
+=======
+	radix_tree_delete(&ioc->radix_root, dead_key >> CIC_DEAD_INDEX_SHIFT);
+	hlist_del_rcu(&cic->cic_list);
+	cfq_cic_free(cic);
+}
+
+>>>>>>> b9a1920... block, cfq: remove delayed unlink
 static void cfq_put_cooperator(struct cfq_queue *cfqq)
 {
 	struct cfq_queue *__cfqq, *next;
@@ -3069,6 +3059,7 @@ cfq_get_queue(struct cfq_data *cfqd, bool is_sync, struct io_context *ioc,
 	return cfqq;
 }
 
+<<<<<<< HEAD
 /*
  * We drop cfq io contexts lazily, so we may find a dead one.
  */
@@ -3093,6 +3084,16 @@ cfq_drop_dead_cic(struct cfq_data *cfqd, struct io_context *ioc,
 	cfq_cic_free(cic);
 }
 
+=======
+/**
+ * cfq_cic_lookup - lookup cfq_io_context
+ * @cfqd: the associated cfq_data
+ * @ioc: the associated io_context
+ *
+ * Look up cfq_io_context associated with @cfqd - @ioc pair.  Must be
+ * called with queue_lock held.
+ */
+>>>>>>> b9a1920... block, cfq: remove delayed unlink
 static struct cfq_io_context *
 cfq_cic_lookup(struct cfq_data *cfqd, struct io_context *ioc)
 {
@@ -3102,17 +3103,20 @@ cfq_cic_lookup(struct cfq_data *cfqd, struct io_context *ioc)
 	if (unlikely(!ioc))
 		return NULL;
 
-	rcu_read_lock();
-
 	/*
-	 * we maintain a last-hit cache, to avoid browsing over the tree
+	 * cic's are indexed from @ioc using radix tree and hint pointer,
+	 * both of which are protected with RCU.  All removals are done
+	 * holding both q and ioc locks, and we're holding q lock - if we
+	 * find a cic which points to us, it's guaranteed to be valid.
 	 */
+	rcu_read_lock();
 	cic = rcu_dereference(ioc->ioc_data);
 	if (cic && cic->key == cfqd) {
 		rcu_read_unlock();
 		return cic;
 	}
 
+<<<<<<< HEAD
 	do {
 		cic = radix_tree_lookup(&ioc->radix_root, cfqd->cic_index);
 		rcu_read_unlock();
@@ -3130,6 +3134,15 @@ cfq_cic_lookup(struct cfq_data *cfqd, struct io_context *ioc)
 		break;
 	} while (1);
 
+=======
+	cic = radix_tree_lookup(&ioc->radix_root, cfqd->queue->id);
+	if (cic && cic->key == cfqd)
+		rcu_assign_pointer(ioc->ioc_data, cic);	/* allowed to race */
+	else
+		cic = NULL;
+out:
+	rcu_read_unlock();
+>>>>>>> b9a1920... block, cfq: remove delayed unlink
 	return cic;
 }
 
@@ -4222,7 +4235,6 @@ static struct elevator_type iosched_cfq = {
 		.elevator_may_queue_fn =	cfq_may_queue,
 		.elevator_init_fn =		cfq_init_queue,
 		.elevator_exit_fn =		cfq_exit_queue,
-		.trim =				cfq_free_io_context,
 	},
 	.elevator_attrs =	cfq_attrs,
 	.elevator_name =	"cfq",
