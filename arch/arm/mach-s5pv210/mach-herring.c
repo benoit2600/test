@@ -186,7 +186,7 @@ static void gps_gpio_init(void)
 
 static void uart_switch_init(void)
 {
-	int ret;
+	int ret = 0;
 	struct device *uartswitch_dev;
 
 	uartswitch_dev = device_create(sec_class, NULL, 0, NULL, "uart_switch");
@@ -377,17 +377,17 @@ static struct s3cfb_lcd r61408 = {
 	},
 };
 
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (6144 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC0 (5120 * SZ_1K)
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC1 (4 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (6144 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (36864 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (36864 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMC2 (5120 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC0 (11264 * SZ_1K) // 15Mb
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_MFC1 (11264 * SZ_1K) // 15Mb
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMD (S5PV210_LCD_WIDTH * \
 					     S5PV210_LCD_HEIGHT * 4 * \
 					     (CONFIG_FB_S3C_NR_BUFFERS + \
 						 (CONFIG_FB_S3C_NUM_OVLY_WIN * \
 						  CONFIG_FB_S3C_NUM_BUF_OVLY_WIN)))
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (8192 * SZ_1K)
+#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (4092 * SZ_1K)
 
 static struct s5p_media_device herring_media_devs[] = {
 	[0] = {
@@ -2243,7 +2243,7 @@ static void s5k4ecgx_init(void)
 static int s5k4ecgx_ldo_en(bool en)
 {
 	int err = 0;
-	int result;
+	int result = 0;
 
 	if (IS_ERR_OR_NULL(cam_isp_core_regulator) ||
 		IS_ERR_OR_NULL(cam_isp_host_regulator) ||
@@ -2550,7 +2550,7 @@ static int s5ka3dfx_power_init(void)
 static int s5ka3dfx_power_on(void)
 {
 	int err = 0;
-	int result;
+	int result = 0;
 
 	if (s5ka3dfx_power_init()) {
 		pr_err("Failed to get all regulator\n");
@@ -2945,7 +2945,7 @@ static struct attribute_group herring_properties_attr_group = {
 static void herring_virtual_keys_init(void)
 {
 	struct kobject *properties_kobj;
-	int ret;
+	int ret= 0;
 
 	properties_kobj = kobject_create_and_add("board_properties", NULL);
 	if (properties_kobj)
@@ -3043,7 +3043,7 @@ static void fsa9480_cardock_cb(bool attached)
 
 static void fsa9480_reset_cb(void)
 {
-	int ret;
+	int ret = 0;
 
 	/* for CarDock, DeskDock */
 	ret = switch_dev_register(&switch_dock);
