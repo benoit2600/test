@@ -118,7 +118,6 @@ EXPORT_SYMBOL(sec_get_param_value);
 #define PREALLOC_WLAN_SEC_NUM		4
 #define PREALLOC_WLAN_BUF_NUM		160
 #define PREALLOC_WLAN_SECTION_HEADER	24
-#define SCREEN_FREQ			75
 
 #define WLAN_SECTION_SIZE_0	(PREALLOC_WLAN_BUF_NUM * 128)
 #define WLAN_SECTION_SIZE_1	(PREALLOC_WLAN_BUF_NUM * 128)
@@ -299,7 +298,7 @@ static struct s3cfb_lcd s6e63m0 = {
 	.p_width = 52,
 	.p_height = 86,
 	.bpp = 24,
-	.freq = SCREEN_FREQ,
+	.freq = 60,
 
 	.timing = {
 		.h_fp = 16,
@@ -325,7 +324,7 @@ static struct s3cfb_lcd nt35580 = {
 	.p_width = 52,
 	.p_height = 86,
 	.bpp = 24,
-	.freq = SCREEN_FREQ,
+	.freq = 60,
 	.timing = {
 		.h_fp = 10,
 		.h_bp = 20,
@@ -350,7 +349,7 @@ static struct s3cfb_lcd r61408 = {
 	.p_width = 52,
 	.p_height = 86,
 	.bpp = 24,
-	.freq = SCREEN_FREQ,
+	.freq = 60,
 	.timing = {
 		.h_fp = 100,
 		.h_bp = 2,
