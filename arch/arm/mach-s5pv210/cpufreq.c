@@ -627,9 +627,6 @@ static int __init s5pv210_cpu_init(struct cpufreq_policy *policy)
 
         cpufreq_frequency_table_cpuinfo(policy, s5pv210_freq_table);
 
-        if ( TOPCPUFREQ >= 1000000 )
-                policy->max = 1000000;
-        else
                 policy->max = TOPCPUFREQ;
 
         policy->min = 100000;
