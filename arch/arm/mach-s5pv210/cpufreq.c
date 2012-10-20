@@ -34,16 +34,16 @@ static struct cpufreq_freqs freqs;
 static DEFINE_MUTEX(set_freq_lock);
 
 /* Somme Trinity useful variable*/
-#define TOPCPUFREQ 1320000
-#define VDDARM1 1425000 // Voltage of L0 and L1 
-#define VDDARM2 1175000
-#define VDDARM3 1050000
+#define TOPCPUFREQ 1400000
+#define VDDARM1 1400000 // Voltage of L0 and L1 
+#define VDDARM2 1250000
+#define VDDARM3 1100000
 #define VDDARM4 975000
-#define VDDINT1 1170000 // Voltage off all freq except L5 
-#define VDDINT2 1050000
+#define VDDINT1 1180000 // Voltage of L0
+#define VDDINT2 1100000 // Voltage of all freq except L0
 #define TOP_DIV 5   //I don't really know the goal of this value
-#define TRIN_M 180 // I don't really know the goal of this value
-#define TRINITY_BUS 240000 // GPU voltage
+#define TRIN_M 175 // I don't really know the goal of this value
+#define TRINITY_BUS 250000 // GPU voltage
 
 /*
 // best for 240 overclock (1320):
@@ -55,10 +55,24 @@ static DEFINE_MUTEX(set_freq_lock);
 #define VDDINT1 1170000 // Voltage off all freq except L5 
 #define VDDINT2 1050000
 #define TOP_DIV 5   //I don't really know the goal of this value
-#define TRIN_M 180 // I don't really know the goal of this value
+#define TRIN_M 165 // I don't really know the goal of this value
 #define TRINITY_BUS 240000 // GPU voltage
 */
 
+/*
+// best for 250 overclock (1400):
+
+#define TOPCPUFREQ 1400000
+#define VDDARM1 1450000 // Voltage of L0 and L1 
+#define VDDARM2 1250000
+#define VDDARM3 1100000
+#define VDDARM4 975000
+#define VDDINT1 1185000 // Voltage off all freq except L5 
+#define VDDINT2 1100000
+#define TOP_DIV 5   //I don't really know the goal of this value
+#define TRIN_M 175 // I don't really know the goal of this value
+#define TRINITY_BUS 250000 // GPU voltage
+*/
 
 /* APLL M,P,S values for 1G/800Mhz */
 #define APLL_VAL_TOP	((1 << 31) | (TRIN_M << 16) | (3 << 8) | 1)
@@ -135,19 +149,19 @@ static struct s5pv210_dvs_conf dvs_conf[] = {
 	},
 	[L1] = {
 		.arm_volt   = VDDARM1,
-		.int_volt   = VDDINT1,
+		.int_volt   = VDDINT2,
 	},
 	[L2] = {
 		.arm_volt   = VDDARM2,
-		.int_volt   = VDDINT1,
+		.int_volt   = VDDINT2,
 	},
 	[L3] = {
 		.arm_volt   = VDDARM3,
-		.int_volt   = VDDINT1,
+		.int_volt   = VDDINT2,
 	},
 	[L4] = {
 		.arm_volt   = VDDARM4,
-		.int_volt   = VDDINT1,
+		.int_volt   = VDDINT2,
 	},
         [L5] = {
                 .arm_volt   = VDDARM4,
