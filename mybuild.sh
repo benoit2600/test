@@ -61,36 +61,39 @@ function fastbootFunction ()
 	echo -e "Reboot." 
 	fastboot reboot
 }
+if test "$1" == "" ; then
+	makeKernel;
+	fastbootFunction;
+else
+	while test "$1" != "" ; do
+		case $1 in
+		        -fastboot|-f)
+				fastbootFunction;
+		              
+		        ;;
+		        --compile|-c)
+				makeKernel;
+		                
+	 		;;
+		        --zip|-z)
+				makeZip;
+		           
+		        ;;
+		        --help|-h)
+		                usage;
+		               exit 0
+		       
+		        ;;
+		        -*)
+		                echo "Error: no such option $1"
+		                usage
+		                exit 1
+		        ;;
+		esac
+		echo -e ""
+		shift
 
-while test "$1" != "" ; do
-        case $1 in
-                -fastboot|-f)
-			fastbootFunction;
-                      
-                ;;
-                --compile|-c)
-			makeKernel;
-                        
- 		;;
-                --zip|-z)
-			makeZip;
-                   
-                ;;
-                --help|-h)
-                        usage;
-                       exit 0
-               
-                ;;
-                -*)
-                        echo "Error: no such option $1"
-                        usage
-                        exit 1
-                ;;
-        esac
-	echo -e ""
-        shift
-
-done
-
+	done
+fi
 exit 0
 
