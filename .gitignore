@@ -79,3 +79,9 @@ GTAGS
 *.orig
 *~
 \#*#
+
+
+
+/zipfile/zipcreate/boot.img
+/zipfile/mkboot/zImage
+/zipfile/ben.zip
