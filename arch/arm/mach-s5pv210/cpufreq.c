@@ -33,7 +33,7 @@ static struct clk *dmc1_clk;
 static struct cpufreq_freqs freqs;
 static DEFINE_MUTEX(set_freq_lock);
 
-/* Somme Trinity useful variable*/
+/* Somme Trinity useful variable
 #define TOPCPUFREQ 1400000
 #define VDDARM1 1400000 // Voltage of L0 and L1 
 #define VDDARM2 1250000
@@ -44,8 +44,8 @@ static DEFINE_MUTEX(set_freq_lock);
 #define TOP_DIV 5   //I don't really know the goal of this value
 #define TRIN_M 175 // I don't really know the goal of this value
 #define TRINITY_BUS 250000 // GPU voltage
+**/
 
-/*
 // best for 240 overclock (1320):
 #define TOPCPUFREQ 1320000
 #define VDDARM1 1425000 // Voltage of L0 and L1 
@@ -57,7 +57,7 @@ static DEFINE_MUTEX(set_freq_lock);
 #define TOP_DIV 5   //I don't really know the goal of this value
 #define TRIN_M 165 // I don't really know the goal of this value
 #define TRINITY_BUS 240000 // GPU voltage
-*/
+
 
 /*
 // best for 250 overclock (1400):
