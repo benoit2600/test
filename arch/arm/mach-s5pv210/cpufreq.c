@@ -124,15 +124,15 @@ static struct s5pv210_dvs_conf dvs_conf[] = {
 	},
 	[L2] = {
 		.arm_volt   = VDDARM2,
-		.int_volt   = VDDINT1,
+		.int_volt   = VDDINT2,
 	},
 	[L3] = {
 		.arm_volt   = VDDARM3,
-		.int_volt   = VDDINT1,
+		.int_volt   = VDDINT2,
 	},
 	[L4] = {
 		.arm_volt   = VDDARM4,
-		.int_volt   = VDDINT1,
+		.int_volt   = VDDINT2,
 	},
         [L5] = {
                 .arm_volt   = VDDARM4,
