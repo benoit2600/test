@@ -105,7 +105,7 @@ struct dram_conf {
 static struct dram_conf s5pv210_dram_conf[2];
 
 enum perf_level {
-        L0, L1, L2, L3, L4, L5,
+	L0, L1, L2, L3, L4, L5
 };
 
 enum s5pv210_mem_type {
@@ -265,6 +265,7 @@ static int s5pv210_target(struct cpufreq_policy *policy,
 
 	if (relation & ENABLE_FURTHER_CPUFREQ)
 		no_cpufreq_access = false;
+
 	if (no_cpufreq_access) {
 #ifdef CONFIG_PM_VERBOSE
 		pr_err("%s:%d denied access to %s as it is disabled"
@@ -317,6 +318,7 @@ static int s5pv210_target(struct cpufreq_policy *policy,
 	}
 
 	cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
+
 
 
         /* Check if there need to change PLL */
@@ -442,7 +444,7 @@ static int s5pv210_target(struct cpufreq_policy *policy,
 		reg |= 0x3;
 	else
 		reg |= 0x1;
-	
+
 	__raw_writel(reg, S5P_ARM_MCS_CON);
 
 	if (pll_changing) {
@@ -607,6 +609,8 @@ static int check_mem_type(void __iomem *dmc_reg)
 static int __init s5pv210_cpu_init(struct cpufreq_policy *policy)
 {
 	unsigned long mem_type;
+    
+    int ret;
 
 	cpu_clk = clk_get(NULL, "armclk");
 	if (IS_ERR(cpu_clk))
@@ -645,6 +649,7 @@ static int __init s5pv210_cpu_init(struct cpufreq_policy *policy)
 
 	s5pv210_dram_conf[1].refresh = (__raw_readl(S5P_VA_DMC1 + 0x30) * 1000);
 	s5pv210_dram_conf[1].freq = clk_get_rate(dmc1_clk);
+
 
 
         policy->cur = policy->min = policy->max = s5pv210_getspeed(0);
@@ -715,9 +720,11 @@ static struct cpufreq_driver s5pv210_driver = {
 #endif
 };
 
+//#ifndef CONFIG_S5P_IDLE2
 static struct notifier_block s5pv210_cpufreq_notifier = {
 	.notifier_call = s5pv210_cpufreq_notifier_event,
 };
+//#endif
 
 static struct notifier_block s5pv210_cpufreq_reboot_notifier = {
 	.notifier_call	= s5pv210_cpufreq_reboot_notifier_event,
