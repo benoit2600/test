@@ -13,7 +13,7 @@
 #define __MACH_TRINITY_H
 
 //#include <mach/trinity_speed.h>
-#define BEN
+#define BEN140
 
 #ifdef THALAMUS
 #define TOPCPUFREQ 1000000
@@ -29,8 +29,21 @@
 #undef OCKERNEL
 #endif
 
+#ifdef BEN140
+#define TOPCPUFREQ 1400000
+#define VDDARM1 1450000 // Voltage of L0 and L1 
+#define VDDARM2 1250000
+#define VDDARM3 1100000
+#define VDDARM4 975000
+#define VDDINT1 1185000 // Voltage off all freq except L5 
+#define VDDINT2 1100000
+#define TOP_DIV 5   //I don't really know the goal of this value
+#define OCKERNEL 1
+#define TRIN_M 175 // I don't really know the goal of this value
+#define TRINITY_BUS 250000 // GPU voltage
+#endif
 
-#ifdef BEN
+#ifdef BEN132
 #define TOPCPUFREQ 1320000
 #define VDDARM1 1425000 // Voltage of L0 and L1 
 #define VDDARM2 1175000
