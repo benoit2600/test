@@ -26,25 +26,25 @@
 #include <mach/regs-clock.h>
 #include <mach/cpu-freq-v210.h>
 
-
 static struct clk *cpu_clk;
 static struct clk *dmc0_clk;
 static struct clk *dmc1_clk;
 static struct cpufreq_freqs freqs;
 static DEFINE_MUTEX(set_freq_lock);
 
-/* Somme Trinity useful variable
-#define TOPCPUFREQ 1400000
-#define VDDARM1 1400000 // Voltage of L0 and L1 
-#define VDDARM2 1250000
-#define VDDARM3 1100000
-#define VDDARM4 975000
-#define VDDINT1 1180000 // Voltage of L0
-#define VDDINT2 1100000 // Voltage of all freq except L0
+// best for 240 overclock (1320):
+#define TOPCPUFREQ 1320000
+#define VDDARM0 1425000 
+#define VDDARM1 1250000
+#define VDDARM2 1175000
+#define VDDARM3 1050000
+#define VDDARM4 950000
+#define VDDINT1 1170000 // Voltage of L0
+#define VDDINT2 1050000 // Voltage of L1-L4
+#define VDDINT3 1000000 // Voltage of L5
 #define TOP_DIV 5   //I don't really know the goal of this value
-#define TRIN_M 175 // I don't really know the goal of this value
-#define TRINITY_BUS 250000 // GPU voltage
-**/
+#define TRIN_M 165 // I don't really know the goal of this value
+#define TRINITY_BUS 240000 // GPU voltage
 
 // best for 240 overclock (1320):
 #define TOPCPUFREQ 1320000
@@ -54,6 +54,7 @@ static DEFINE_MUTEX(set_freq_lock);
 #define VDDARM4 975000
 #define VDDINT1 1170000 // Voltage off all freq except L5 
 #define VDDINT2 1050000
+#define VDDINT3 1050000
 #define TOP_DIV 5   //I don't really know the goal of this value
 #define TRIN_M 165 // I don't really know the goal of this value
 #define TRINITY_BUS 240000 // GPU voltage
@@ -138,12 +139,16 @@ struct s5pv210_dvs_conf {
 	unsigned long	int_volt; /* uV */
 };
 
+#ifdef CONFIG_CUSTOM_VOLTAGE
+unsigned long arm_volt_max = 1500000;
+unsigned long int_volt_max = 1300000;
+#else
 const unsigned long arm_volt_max = 1500000;
 const unsigned long int_volt_max = 1250000;
 
 static struct s5pv210_dvs_conf dvs_conf[] = {
 	[L0] = {
-		.arm_volt   = VDDARM1,
+		.arm_volt   = VDDARM0,
 		.int_volt   = VDDINT1,
 	},
 	[L1] = {
@@ -312,6 +317,9 @@ static int s5pv210_target(struct cpufreq_policy *policy,
 	/* Check if there need to change System bus clock */
 	if ((index == L5) || (freqs.old == s5pv210_freq_table[L5].frequency))
 		bus_speed_changing = 1;
+	if ((index == L0) || (freqs.old == s5pv210_freq_table[L0].frequency))
+		bus_speed_changing = 1;
+	
 
 	if (bus_speed_changing) {
 		/*
@@ -322,8 +330,11 @@ static int s5pv210_target(struct cpufreq_policy *policy,
 		if (pll_changing)
 			s5pv210_set_refresh(DMC1, 83000);
 		else
-			s5pv210_set_refresh(DMC1, TRINITY_BUS/2);
-
+		{
+			if (index != L0)
+				s5pv210_set_refresh(DMC1, 100000);
+			else s5pv210_set_refresh(DMC1, TRINITY_BUS/2);
+		}
 		s5pv210_set_refresh(DMC0, 83000);
 	}
 
@@ -512,17 +523,12 @@ static int s5pv210_target(struct cpufreq_policy *policy,
 		if (index != L5) {
 			/*
 			 * DMC0 : 166Mhz
-			 * DMC1 : 200Mhz
+			 * DMC1 : 200Mhz or more if OC'ing CPU
 			 */
-
-			if (index == L0) {
-				s5pv210_set_refresh(DMC0, 166000);
+			s5pv210_set_refresh(DMC0, 166000);
+			if (index == L0)
 				s5pv210_set_refresh(DMC1, TRINITY_BUS);
-			} else{
-				s5pv210_set_refresh(DMC0, 166000);
-                                s5pv210_set_refresh(DMC1, 200000);
-			}
-
+			else 	s5pv210_set_refresh(DMC1, 200000);
 		} else {
 			/*
 			 * DMC0 : 83Mhz
