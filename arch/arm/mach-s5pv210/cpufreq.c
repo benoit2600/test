@@ -39,11 +39,11 @@ static DEFINE_MUTEX(set_freq_lock);
 #define VDDARM2 1175000
 #define VDDARM3 1050000
 #define VDDARM4 950000
-#define VDDINT1 1170000 // Voltage of L0
+#define VDDINT1 1175000 // Voltage of L0
 #define VDDINT2 1050000 // Voltage of L1-L4
 #define VDDINT3 1000000 // Voltage of L5
 #define TOP_DIV 5   //I don't really know the goal of this value
-#define TRIN_M 165 // I don't really know the goal of this value
+#define TRIN_M 180 // I don't really know the goal of this value
 #define TRINITY_BUS 240000 // GPU voltage
 /*
 // best for 240 overclock (1320):
