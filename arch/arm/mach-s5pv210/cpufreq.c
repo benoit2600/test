@@ -45,7 +45,7 @@ static DEFINE_MUTEX(set_freq_lock);
 #define TOP_DIV 5   //I don't really know the goal of this value
 #define TRIN_M 165 // I don't really know the goal of this value
 #define TRINITY_BUS 240000 // GPU voltage
-
+/*
 // best for 240 overclock (1320):
 #define TOPCPUFREQ 1320000
 #define VDDARM1 1425000 // Voltage of L0 and L1 
@@ -58,7 +58,7 @@ static DEFINE_MUTEX(set_freq_lock);
 #define TOP_DIV 5   //I don't really know the goal of this value
 #define TRIN_M 165 // I don't really know the goal of this value
 #define TRINITY_BUS 240000 // GPU voltage
-
+*/
 
 /*
 // best for 250 overclock (1400):
@@ -145,7 +145,7 @@ unsigned long int_volt_max = 1300000;
 #else
 const unsigned long arm_volt_max = 1500000;
 const unsigned long int_volt_max = 1250000;
-
+#endif
 static struct s5pv210_dvs_conf dvs_conf[] = {
 	[L0] = {
 		.arm_volt   = VDDARM0,
