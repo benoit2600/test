@@ -146,6 +146,7 @@ unsigned long int_volt_max = 1300000;
 const unsigned long arm_volt_max = 1500000;
 const unsigned long int_volt_max = 1250000;
 #endif
+
 static struct s5pv210_dvs_conf dvs_conf[] = {
 	[L0] = {
 		.arm_volt   = VDDARM0,
