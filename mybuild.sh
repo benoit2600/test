@@ -44,8 +44,12 @@ function makeZip ()
 	$dir/zipfile/mkboot/mkbootimg --kernel $dir/zipfile/mkboot/zImage --ramdisk $dir/zipfile/mkboot/ramdisk.cpio.gz --cmdline 'no_console_suspend=1 console=bull's --base 0x30000000 --pagesize 4096 -o $dir/zipfile/zipcreate/boot.img
 
 	cp $dir/drivers/scsi/scsi_wait_scan.ko $dir/zipfile/zipcreate/system/modules/;
-			
-	zip -r -q $dir/zipfile/ben.zip $dir/zipfile/zipcreate/*
+
+	rm $dir/zipfile/ben.zip
+
+	cd $dir/zipfile/zipcreate/
+
+	zip  -r -q  ../ben.zip ./*
 
 	echo -e ""
 	ls -l $dir/zipfile/ben.zip
