@@ -24,18 +24,19 @@ static int bln_blink_state = 0;
 static bool bln_suspended = false; /* is system suspended */
 static struct bln_implementation *bln_imp = NULL;
 static bool in_kernel_blink = false;
-//static uint32_t blink_count;
+static uint32_t blink_count;
 
 static struct wake_lock bln_wake_lock;
 
-//void bl_timer_callback(unsigned long data);
-//static struct timer_list blink_timer =
-//		TIMER_INITIALIZER(bl_timer_callback, 0, 0);
-//static void blink_callback(struct work_struct *blink_work);
-//static DECLARE_WORK(blink_work, blink_callback);
+void bl_timer_callback(unsigned long data);
+static struct timer_list blink_timer =
+		TIMER_INITIALIZER(bl_timer_callback, 0, 0);
+static void blink_callback(struct work_struct *blink_work);
+static DECLARE_WORK(blink_work, blink_callback);
 
-static uint32_t blink_interval = 750;	/* on / off every 750ms */
+static uint32_t blink_interval = 500;	/* on / off every 750ms */
 static uint32_t max_blink_count = 600;  /* 10 minutes */
+
 
 #define BACKLIGHTNOTIFICATION_VERSION 9
 
@@ -72,6 +73,15 @@ static void enable_led_notification(void)
 	if (!bln_enabled)
 		return;
 
+	wake_lock(&bln_wake_lock);
+
+	blink_timer.expires = jiffies +
+			msecs_to_jiffies(blink_interval);
+	blink_count = max_blink_count;
+
+	if (timer_pending(&blink_timer))
+		del_timer(&blink_timer);
+	add_timer(&blink_timer);
 	bln_enable_backlights();
 	pr_info("%s: notification led enabled\n", __FUNCTION__);
 	bln_ongoing = true;
@@ -81,10 +91,14 @@ static void disable_led_notification(void)
 {
 	pr_info("%s: notification led disabled\n", __FUNCTION__);
 
+	bln_blink_state = 0;
 	bln_ongoing = false;
 
 	if (bln_suspended)
 		bln_disable_backlights();
+
+	//if (in_kernel_blink) //dave: same reason as above
+		del_timer(&blink_timer);
 
 	wake_unlock(&bln_wake_lock);
 
@@ -291,6 +305,33 @@ bool bln_is_ongoing()
 }
 EXPORT_SYMBOL(bln_is_ongoing);
 
+
+static void blink_callback(struct work_struct *blink_work)
+{
+	if (--blink_count == 0) {
+		pr_info("%s: notification timed out\n", __FUNCTION__);
+		bln_disable_backlights();
+		del_timer(&blink_timer);
+		wake_unlock(&bln_wake_lock);
+		return;
+	}
+
+	if (in_kernel_blink) //dave: only flip state if blink is enabled
+	{
+		if (bln_blink_state)
+			bln_enable_backlights();
+		else
+			bln_disable_backlights();
+	} else
+		bln_enable_backlights();
+	bln_blink_state = !bln_blink_state;
+}
+
+void bl_timer_callback(unsigned long data)
+{
+	schedule_work(&blink_work);
+	mod_timer(&blink_timer, jiffies + msecs_to_jiffies(blink_interval));
+}
 
 static int __init bln_control_init(void)
 {
