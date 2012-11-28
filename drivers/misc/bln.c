@@ -36,7 +36,7 @@ static DECLARE_WORK(blink_work, blink_callback);
 
 static uint32_t blink_interval = 500;	/* on / off every 750ms */
 static uint32_t max_blink_count = 600;  /* 10 minutes */
-
+static bool blink_finalstate = true;
 
 #define BACKLIGHTNOTIFICATION_VERSION 9
 
@@ -197,7 +197,24 @@ static ssize_t blink_interval_status_write(struct device *dev,
 
 	return size;
 }
+static ssize_t blink_finalstate_status_read(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf,"%u\n", (blink_finalstate ? 1 : 0));
+}
 
+static ssize_t blink_finalstate_status_write(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned int data;
+
+	if (sscanf(buf, "%u\n", &data) == 1)
+		blink_finalstate = !!(data);
+	else
+		pr_info("%s: input error\n", __FUNCTION__);
+
+	return size;
+}
 static ssize_t max_blink_count_status_read(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -268,6 +285,9 @@ static DEVICE_ATTR(in_kernel_blink, S_IRUGO | S_IWUGO,
 static DEVICE_ATTR(blink_interval, S_IRUGO | S_IWUGO,
 		blink_interval_status_read,
 		blink_interval_status_write);
+static DEVICE_ATTR(blink_finalstate, S_IRUGO | S_IWUGO,
+		blink_finalstate_status_read,
+		blink_finalstate_status_write);
 static DEVICE_ATTR(max_blink_count, S_IRUGO | S_IWUGO,
 		max_blink_count_status_read,
 		max_blink_count_status_write);
@@ -279,6 +299,7 @@ static struct attribute *bln_notification_attributes[] = {
 	&dev_attr_notification_led.attr,
 	&dev_attr_in_kernel_blink.attr,
 	&dev_attr_blink_interval.attr,
+	&dev_attr_blink_finalstate.attr,
 	&dev_attr_max_blink_count.attr,
 	&dev_attr_version.attr,
 	NULL
@@ -310,7 +331,10 @@ static void blink_callback(struct work_struct *blink_work)
 {
 	if (--blink_count == 0) {
 		pr_info("%s: notification timed out\n", __FUNCTION__);
-		bln_disable_backlights();
+		if (blink_finalstate)
+			bln_enable_backlights();
+		else
+			bln_disable_backlights();
 		del_timer(&blink_timer);
 		wake_unlock(&bln_wake_lock);
 		return;
