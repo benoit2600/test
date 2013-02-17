@@ -105,32 +105,32 @@ const unsigned long int_volt_max = 1300000;
 
 static struct s5pv210_dvs_conf dvs_conf[] = {
 	[L0] = {
-		.arm_volt   = 1350000,
+		.arm_volt   = 1425000,
 		.int_volt   = 1150000,
 		},
 	[L1] = {
-		.arm_volt   = 1300000,
+		.arm_volt   = 1425000,
 		.int_volt   = 1150000,
 		},
 	[L2] = {
-		.arm_volt   = 1250000,
-		.int_volt   = 1100000,
+		.arm_volt   = 1425000,
+		.int_volt   = 1150000,
 		},
 	[L3] = {
-		.arm_volt   = 1200000,
-		.int_volt   = 1100000,
+		.arm_volt   = 1175000,
+		.int_volt   = 1150000,
 		},
     	[L4] = {
 		.arm_volt   = 1050000,
-		.int_volt   = 1100000,
+		.int_volt   = 1150000,
 		},
 	[L5] = {
 		.arm_volt   = 950000,
-		.int_volt   = 1100000,
+		.int_volt   = 1150000,
 		},
 	[L6] = {
 		.arm_volt   = 950000,
-		.int_volt   = 1000000,
+		.int_volt   = 1050000,
 		}
 };
 
@@ -257,9 +257,9 @@ static int s5pv210_target(struct cpufreq_policy *policy,
 	int_volt = dvs_conf[index].int_volt;
 
 	/* Increase voltages for FSB if 1.1GHz is selected */
-	if ((policy->user_policy.max >= 1100000) && (index != L0) && (index != L1) && (index !=L6))
+	/*if ((policy->user_policy.max >= 1100000) && (index != L0) && (index != L1) && (index !=L6))
 	    int_volt += 50000;
-
+*/
 	if (freqs.new > freqs.old) {
 		/* Voltage up code: increase ARM first */
 		if (!IS_ERR_OR_NULL(arm_regulator) &&
