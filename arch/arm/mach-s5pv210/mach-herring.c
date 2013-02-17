@@ -101,7 +101,7 @@
 
 #include "herring.h"
 
-#define lcd_or_amoled_fq  56  //screen refresh rate
+#define lcd_or_amoled_fq  66  //screen refresh rate
 
 struct class *sec_class;
 EXPORT_SYMBOL(sec_class);
