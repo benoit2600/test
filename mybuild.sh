@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dir=/home/ben/kernel/test
+dir=/home/ben/kernel
 
     cd $dir
 
@@ -15,10 +15,10 @@ function usage ()
 
 function makeKernel ()
 {
-	export PATH=$PATH:/opt/toolchain/bin/
+	export PATH=$PATH:/opt/android-toolchain/bin/
 	export ARCH=arm
 	export SUBARCH=arm
-	export CROSS_COMPILE=arm-none-eabi-
+	export CROSS_COMPILE=arm-linux-androideabi-
 	git branch
 	read -n 1 -p "Correct branch? [Y/N]: " 
 	if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -27,7 +27,7 @@ function makeKernel ()
 	fi
 	echo -e "\nCompiling the kernel :\n"
 
-	make -j2
+	make -j5
 
 	rm $dir/zipfile/kernel/zImage
 	cp $dir/arch/arm/boot/zImage $dir/zipfile/kernel/
