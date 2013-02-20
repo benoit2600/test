@@ -49,6 +49,7 @@
 #include <mach/adc.h>
 #include <mach/param.h>
 #include <mach/system.h>
+#include <mach/trinity.h>
 
 #include <linux/usb/gadget.h>
 #include <linux/fsa9480.h>
@@ -446,34 +447,30 @@ static struct s5p_media_device herring_media_devs[] = {
 #ifdef CONFIG_CPU_FREQ
 static struct s5pv210_cpufreq_voltage smdkc110_cpufreq_volt[] = {
 	{
-		.freq	= 1320000,
-		.varm	= 1350000,
-		.vint	= 1100000,
-	}, {
-		.freq	= 1096000,
-		.varm	= 1300000,
-		.vint	= 1150000,
+		.freq	= TOPCPUFREQ,
+		.varm	= VDDARM1,
+		.vint	= VDDINT1,
 	}, {
 		.freq	= 1000000,
-		.varm	= 1275000,
-		.vint	= 1100000,
+		.varm	= VDDARM1,
+		.vint	= VDDINT1,
 	}, {
 		.freq	=  800000,
-		.varm	= 1200000,
-		.vint	= 1100000,
+		.varm	= VDDARM2,
+		.vint	= VDDINT1,
 	}, {
 		.freq	=  400000,
-		.varm	= 1050000,
-		.vint	= 1100000,
-	}, {
-		.freq	=  200000,
-		.varm	=  950000,
-		.vint	= 1100000,
+		.varm	= VDDARM3,
+		.vint	= VDDINT1,
+        }, {
+                .freq   =  200000,
+                .varm   = VDDARM4,
+                .vint   = VDDINT1,
 	}, {
 		.freq	=  100000,
-		.varm	=  950000,
-		.vint	= 1000000,
-	},
+		.varm	= VDDARM4,
+		.vint	= VDDINT2,
+	}
 };
 
 static struct s5pv210_cpufreq_data smdkc110_cpufreq_plat = {
@@ -732,7 +729,7 @@ static struct regulator_init_data herring_buck1_data = {
 		.valid_ops_mask	= REGULATOR_CHANGE_VOLTAGE |
 				  REGULATOR_CHANGE_STATUS,
 		.state_mem	= {
-			.uV	= 1250000,
+			.uV	= VDDARM1,
 			.mode	= REGULATOR_MODE_NORMAL,
 			.disabled = 1,
 		},
@@ -750,7 +747,7 @@ static struct regulator_init_data herring_buck2_data = {
 		.valid_ops_mask	= REGULATOR_CHANGE_VOLTAGE |
 				  REGULATOR_CHANGE_STATUS,
 		.state_mem	= {
-			.uV	= 1100000,
+			.uV	= VDDINT1,
 			.mode	= REGULATOR_MODE_NORMAL,
 			.disabled = 1,
 		},
@@ -1119,16 +1116,20 @@ static struct max8998_platform_data max8998_pdata = {
 	.regulators     = herring_regulators,
 	.charger        = &herring_charger,
 	/* Preloads must be in increasing order of voltage value */
-	.buck1_voltage4	= 950000,
-	.buck1_voltage3	= 1050000,
-	.buck1_voltage2	= 1200000,
-	.buck1_voltage1	= 1275000,
-	.buck2_voltage2	= 1000000,
-	.buck2_voltage1	= 1100000,
+	.buck1_voltage4	= VDDARM4,
+	.buck1_voltage3	= VDDARM3,
+	.buck1_voltage2	= VDDARM2,
+	.buck1_voltage1	= VDDARM1,
+	.buck2_voltage2	= VDDINT2,
+	.buck2_voltage1	= VDDINT1,
 	.buck1_set1	= GPIO_BUCK_1_EN_A,
 	.buck1_set2	= GPIO_BUCK_1_EN_B,
 	.buck2_set3	= GPIO_BUCK_2_EN,
-	.buck1_default_idx = 1,
+//#ifdef OCKERNEL
+//	.buck1_default_idx = 2,
+//#else
+        .buck1_default_idx = 1,
+//#endif
 	.buck2_default_idx = 0,
 };
 
